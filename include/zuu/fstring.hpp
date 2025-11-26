@@ -64,8 +64,8 @@ namespace zuu {
 #include "meta/traits.hpp"
 
 // Core storage
-#include "fstring/core.hpp"
-#include "fstring/literals.hpp"
+#include "core/core.hpp"
+#include "core/literals.hpp"
 
 // String algorithms (pipeable)
 #include "str/pipe.hpp"

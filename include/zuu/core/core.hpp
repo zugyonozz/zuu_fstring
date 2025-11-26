@@ -205,6 +205,103 @@ public:
         return *this;
     }
 
+	// ==================== Search Operations ====================
+
+	[[nodiscard]] constexpr size_type find(CharT ch, size_type pos = 0) const noexcept {
+        for (size_type i = pos; i < size_; ++i) {
+            if (data_[i] == ch) return i;
+        }
+        return npos;
+    }
+    
+    [[nodiscard]] constexpr size_type find(const_pointer str, size_type pos = 0) const noexcept {
+        if (!str) return npos;
+        
+        size_type str_len = 0;
+        while (str[str_len] != CharT{}) ++str_len;
+        
+        if (str_len == 0) return pos;
+        if (pos + str_len > size_) return npos;
+        
+        for (size_type i = pos; i <= size_ - str_len; ++i) {
+            bool match = true;
+            for (size_type j = 0; j < str_len; ++j) {
+                if (data_[i + j] != str[j]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) return i;
+        }
+        return npos;
+    }
+    
+    [[nodiscard]] constexpr size_type rfind(CharT ch, size_type pos = npos) const noexcept {
+        if (size_ == 0) return npos;
+        
+        size_type search_end = (pos >= size_) ? size_ - 1 : pos;
+        for (size_type i = search_end + 1; i > 0; --i) {
+            if (data_[i - 1] == ch) return i - 1;
+        }
+        return npos;
+    }
+    
+    [[nodiscard]] constexpr bool contains(CharT ch) const noexcept {
+        return find(ch) != npos;
+    }
+    
+    [[nodiscard]] constexpr bool contains(const_pointer str) const noexcept {
+        return find(str) != npos;
+    }
+    
+    [[nodiscard]] constexpr bool starts_with(CharT ch) const noexcept {
+        return size_ > 0 && data_[0] == ch;
+    }
+    
+    [[nodiscard]] constexpr bool starts_with(const_pointer str) const noexcept {
+        if (!str) return false;
+        size_type i = 0;
+        while (str[i] != CharT{}) {
+            if (i >= size_ || data_[i] != str[i]) return false;
+            ++i;
+        }
+        return true;
+    }
+    
+    [[nodiscard]] constexpr bool ends_with(CharT ch) const noexcept {
+        return size_ > 0 && data_[size_ - 1] == ch;
+    }
+    
+    [[nodiscard]] constexpr bool ends_with(const_pointer str) const noexcept {
+        if (!str) return false;
+        size_type str_len = 0;
+        while (str[str_len] != CharT{}) ++str_len;
+        
+        if (str_len > size_) return false;
+        
+        for (size_type i = 0; i < str_len; ++i) {
+            if (data_[size_ - str_len + i] != str[i]) return false;
+        }
+        return true;
+    }
+
+	// ==================== Substring ====================
+    
+    template <std::size_t ResultCap = Cap>
+    [[nodiscard]] constexpr basic_fstring<CharT, ResultCap> substr(
+        size_type pos = 0, 
+        size_type count = npos
+    ) const noexcept {
+        basic_fstring<CharT, ResultCap> result;
+        
+        if (pos >= size_) return result;
+        
+        count = std::min(count, size_ - pos);
+        result.append(data_ + pos, count);
+        
+        return result;
+    }
+
     // ==================== Comparison ====================
     
     [[nodiscard]] constexpr auto operator<=>(const basic_fstring&) const noexcept = default;
